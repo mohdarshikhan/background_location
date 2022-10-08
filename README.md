@@ -1,6 +1,6 @@
 # OnBoardingDemo
 
-This is a demonstration how to create onboarding screen in flutter
+This is a demonstration how to fetch user location in background, using background location permission in kotlin
 
 ## How to clone the repo
 
