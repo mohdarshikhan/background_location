@@ -1,38 +1,63 @@
 package com.mak.backgroundlocation.data
 
-import com.mak.backgroundlocation.data.db.LocationEntity
-import com.mak.backgroundlocation.utils.BackgroundLocationManager
 import android.app.Activity
 import android.content.Context
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.mak.backgroundlocation.R
-import me.ibrahimsn.library.LiveSharedPreferences
+import com.mak.backgroundlocation.data.db.LocationDatabase
+import com.mak.backgroundlocation.data.db.LocationEntity
+import com.mak.backgroundlocation.utils.BackgroundLocationManager
 import java.util.*
 import java.util.concurrent.ExecutorService
 
 class LocationRepository private constructor(
+    private val locationDatabase: LocationDatabase,
     private val locationManager: BackgroundLocationManager,
+    private val executor: ExecutorService
 ) {
 
-    var locationsData: MutableLiveData<List<LocationEntity>> = MutableLiveData()
+    // Database related fields/methods:
+    private val locationDao = locationDatabase.locationDao()
 
     /**
      * Returns all recorded locations from database.
      */
-    fun getLocations(): LiveData<List<LocationEntity>> = locationsData
+    fun getLocations(): LiveData<List<LocationEntity>> = locationDao.getLocations()
+
+    // Not being used now but could in future versions.
+    /**
+     * Returns specific location in database.
+     */
+    fun getLocation(id: UUID): LiveData<LocationEntity> = locationDao.getLocation(id)
+
+    // Not being used now but could in future versions.
+    /**
+     * Updates location in database.
+     */
+    fun updateLocation(locationEntity: LocationEntity) {
+        executor.execute {
+            locationDao.updateLocation(locationEntity)
+        }
+    }
+
+    /**
+     * Adds location to the database.
+     */
+    fun addLocation(locationEntity: LocationEntity) {
+        executor.execute {
+            locationDao.addLocation(locationEntity)
+        }
+    }
 
     /**
      * Adds list of locations to the database.
      */
     fun addLocations(myLocationEntities: List<LocationEntity>) {
-//        executor.execute {
-//            locationDao.addLocations(myLocationEntities)
-//        }
-        locationsData.value = myLocationEntities
+        executor.execute {
+            locationDao.addLocations(myLocationEntities)
+        }
     }
 
     // Location related fields/methods:
@@ -60,10 +85,12 @@ class LocationRepository private constructor(
         @Volatile private var INSTANCE: LocationRepository? = null
 
         fun getInstance(context: Context, executor: ExecutorService): LocationRepository {
-            val preferences = context.getSharedPreferences(context.getString(R.string.pref_key), Context.MODE_PRIVATE)
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: LocationRepository(
-                    BackgroundLocationManager.getInstance(context))
+                    LocationDatabase.getInstance(context),
+                    BackgroundLocationManager.getInstance(context),
+                    executor
+                )
                     .also { INSTANCE = it }
             }
         }

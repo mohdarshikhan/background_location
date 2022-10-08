@@ -1,10 +1,13 @@
 package com.mak.backgroundlocation.data.db
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.text.DateFormat
 import java.util.*
 
+@Entity(tableName = "location")
 data class LocationEntity(
-    var id: UUID = UUID.randomUUID(),
+    @PrimaryKey var id: UUID = UUID.randomUUID(),
     var latitude: Double = 0.0,
     var longitude: Double = 0.0,
     var foreground: Boolean = true,
