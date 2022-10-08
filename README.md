@@ -1,6 +1,6 @@
 # OnBoardingDemo
 
-This is a demonstration how to create onboarding screen in flutter
+This is a demonstration how to fetch user location in background, using background location permission in kotlin
 
 ## How to clone the repo
 
@@ -8,7 +8,7 @@ Open terminal in your computer
 
 Run the follwing command
 
-`git clone https://github.com/mdarshikhan/onboarding_flutter`
+`git clone https://github.com/mdarshikhan/background_location`
 
 ## How to fork the repo
 
